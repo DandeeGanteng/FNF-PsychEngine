@@ -1,6 +1,6 @@
 package;
 
-#if DISCORD_ALLOWED
+#if desktop
 import Discord.DiscordClient;
 #end
 import flixel.FlxG;
@@ -33,9 +33,9 @@ class MainMenuState extends MusicBeatState
 	private var camAchievement:FlxCamera;
 	
 	var optionShit:Array<String> = [
-		'story_mode', 
-		'freeplay', 
-		'credits', 
+		'story_mode',
+		'freeplay',
+		'credits',
 		'options'
 	];
 
@@ -46,12 +46,15 @@ class MainMenuState extends MusicBeatState
 
 	override function create()
 	{
+		Paths.clearStoredMemory();
+		Paths.clearUnusedMemory();
+
 		#if MODS_ALLOWED
 		Paths.pushGlobalMods();
 		#end
 		WeekData.loadTheFirstEnabledMod();
 
-		#if DISCORD_ALLOWED
+		#if desktop
 		// Updating Discord Rich Presence
 		DiscordClient.changePresence("In the Menus", null);
 		#end
@@ -153,7 +156,9 @@ class MainMenuState extends MusicBeatState
 		}
 		#end
 
+		#if android
 		addVirtualPad(UP_DOWN, A_B_E);
+		#end
 
 		super.create();
 	}
@@ -254,11 +259,13 @@ class MainMenuState extends MusicBeatState
 					});
 				}
 			}
-			else if (virtualPad.buttonE.justPressed || FlxG.keys.anyJustPressed(debugKeys))
+			#if (desktop || android)
+			else if (FlxG.keys.anyJustPressed(debugKeys) #if android || _virtualpad.buttonE.justPressed #end)
 			{
 				selectedSomethin = true;
 				MusicBeatState.switchState(new MasterEditorMenu());
 			}
+			#end
 		}
 
 		super.update(elapsed);
